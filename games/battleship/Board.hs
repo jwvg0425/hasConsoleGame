@@ -6,12 +6,13 @@ import Basic
 data Board = Board { size :: Int, state :: Map.Map Point Cell }
 
 placeShip :: Board -> Ship -> Maybe Board
-placeShip board ship = go board points
+placeShip board ship = place board points
     where points = getPosList ship
-          go board [] = Just board
-          go board (pos:other) = if Map.member pos $ state board 
+          place board [] = Just board
+          place board (pos:other) = if Map.member pos $ state board 
                                  then Nothing
-                                 else go (placeShipPos board pos) other
+                                 else place (changeState board pos SHIP) other
 
-placeShipPos :: Board -> Point -> Board
-placeShipPos board pos = Board { size = size board, state = Map.insert pos SHIP $ state board } 
+changeState :: Board -> Point -> Cell -> Board
+changeState board pos cell = Board { size = size board, state = Map.insertWith (set) pos cell $ state board }
+    where set old new = new
