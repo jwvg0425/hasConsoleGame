@@ -1,5 +1,6 @@
 import System.IO
 import System.Random
+import Data.List
 
 makeAnswer :: StdGen -> Int
 makeAnswer gen = h*100 + t*10 + o
@@ -11,8 +12,47 @@ makeAnswer gen = h*100 + t*10 + o
 main = do
     gen <- getStdGen
     let answer = makeAnswer gen
-    guess answer
-    
-guess :: Int -> IO ()
-guess answer = do
-    putStrLn . show $ answer
+    play answer
+
+play :: Int -> IO ()
+play answer = do
+    try <- guess
+    if try == answer then
+        putStrLn "right answer!"
+    else if try == 0 then
+        putStrLn "exit."
+    else do
+        let (s,b) = getStrikeAndBall try answer
+        putStrLn $ (show s) ++ " strike," ++ (show b) ++ " ball"
+        play answer
+
+guess :: IO Int
+guess = do
+    putStrLn "guess the answer : "
+    input <- getLine
+    let inputList = reads input
+    if inputList == [] then
+        return 0
+    else if validInput (head inputList) then
+        return $ fst (head inputList)
+    else do
+        putStrLn "invalid input."
+        guess
+        
+validInput :: (Int, String) -> Bool
+validInput (v,"") = if (length . nub $ vs) == 3 then True else False
+    where vs = valueToList v
+validInput _ = False
+
+valueToList :: Int -> [Int]
+valueToList 0 = [0]
+valueToList v 
+    | v < 10 = [v]
+    | otherwise = (v `mod` 10):valueToList (v `div` 10) 
+
+getStrikeAndBall :: Int -> Int -> (Int, Int)
+getStrikeAndBall try answer = (strike, ball)
+    where t = valueToList try
+          a = valueToList answer
+          strike = length $ filter (\(x,y) -> x == y) (zip t a)
+          ball = length (filter (\x -> x `elem` a) t) - strike
