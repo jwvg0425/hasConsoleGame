@@ -4,4 +4,4 @@ import Board
 import Player
 
 main = do
-    print "abc"
+    putStrLn "abc"

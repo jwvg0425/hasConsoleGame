@@ -5,6 +5,12 @@ import Basic
 
 data Board = Board { size :: Int, state :: Map.Map Point Cell }
 
+boardSize :: Int
+boardSize = 8
+
+makeBoard :: Int -> Board
+makeBoard n = Board { size = n, state = Map.empty }
+
 placeShip :: Board -> Ship -> Maybe Board
 placeShip board ship = place board points
     where points = getPosList ship
